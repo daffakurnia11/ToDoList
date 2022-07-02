@@ -4,15 +4,22 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.dicoding.todoapp.R
+import com.dicoding.todoapp.data.Task
+import com.dicoding.todoapp.ui.ViewModelFactory
+import com.dicoding.todoapp.ui.list.TaskViewModel
 import com.dicoding.todoapp.utils.DatePickerFragment
 import java.text.SimpleDateFormat
 import java.util.*
 
 class AddTaskActivity : AppCompatActivity(), DatePickerFragment.DialogDateListener {
     private var dueDateMillis: Long = System.currentTimeMillis()
+    private lateinit var taskViewModel: TaskViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,6 +27,8 @@ class AddTaskActivity : AppCompatActivity(), DatePickerFragment.DialogDateListen
 
         supportActionBar?.title = getString(R.string.add_task)
 
+        val factory = ViewModelFactory.getInstance(this)
+        taskViewModel = ViewModelProvider(this, factory)[TaskViewModel::class.java]
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -28,9 +37,20 @@ class AddTaskActivity : AppCompatActivity(), DatePickerFragment.DialogDateListen
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        val addEditTitle: EditText = findViewById(R.id.add_ed_title)
+        val title = addEditTitle.text.toString()
+
+        val addEditDesc: EditText = findViewById(R.id.add_ed_description)
+        val desc = addEditDesc.text.toString()
+
         return when (item.itemId) {
             R.id.action_save -> {
                 //TODO 12 : Create AddTaskViewModel and insert new task to database
+                val addNew = Task(0, title, desc, dueDateMillis, false)
+                taskViewModel.insert(task = addNew)
+                Toast.makeText(applicationContext, "Task has been added!", Toast.LENGTH_SHORT).show()
+                finish()
                 true
             }
             else -> super.onOptionsItemSelected(item)

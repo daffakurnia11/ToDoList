@@ -28,6 +28,12 @@ class TaskViewModel(private val taskRepository: TaskRepository) : ViewModel() {
         _filter.value = filterType
     }
 
+    fun insert(task: Task) {
+        viewModelScope.launch {
+            taskRepository.insertTask(task)
+        }
+    }
+
     fun completeTask(task: Task, completed: Boolean) = viewModelScope.launch {
         taskRepository.completeTask(task, completed)
         if (completed) {
