@@ -53,7 +53,11 @@ class TaskActivity : AppCompatActivity() {
         //TODO 15 : Fixing bug : snackBar not show when task completed
         taskViewModel.snackbarText.observe(this) {
             val message = it.getContentIfNotHandled() ?: return@observe
-            Snackbar.make(findViewById(R.id.coordinator_layout), getString(message), Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(
+                findViewById(R.id.coordinator_layout),
+                getString(message),
+                Snackbar.LENGTH_SHORT
+            ).show()
         }
 
     }

@@ -33,7 +33,9 @@ class TaskRepository(private val tasksDao: TaskDao) {
     fun getTasks(filter: TasksFilterType): LiveData<PagedList<Task>> {
 //        throw NotImplementedError("Not yet implemented")
         val tasks = tasksDao.getTasks(FilterUtils.getFilteredQuery(filter))
-        val settings = PagedList.Config.Builder().setEnablePlaceholders(true).setInitialLoadSizeHint(30).setPageSize(10).build()
+        val settings =
+            PagedList.Config.Builder().setEnablePlaceholders(true).setInitialLoadSizeHint(30)
+                .setPageSize(10).build()
         return LivePagedListBuilder(tasks, settings).build()
     }
 
@@ -45,7 +47,7 @@ class TaskRepository(private val tasksDao: TaskDao) {
         return tasksDao.getNearestActiveTask(false)
     }
 
-    suspend fun insertTask(newTask: Task): Long{
+    suspend fun insertTask(newTask: Task): Long {
         return tasksDao.insertTask(newTask)
     }
 

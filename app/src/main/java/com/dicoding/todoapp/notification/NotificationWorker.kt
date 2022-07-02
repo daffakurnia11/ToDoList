@@ -36,7 +36,10 @@ class NotificationWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, p
         return TaskStackBuilder.create(applicationContext).run {
             addNextIntentWithParentStack(intent)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                getPendingIntent(
+                    0,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
             } else {
                 getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
             }
@@ -51,12 +54,14 @@ class NotificationWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, p
         val title = task.title
         val notifIntent = Intent(applicationContext, TaskActivity::class.java)
 
-        val taskStackBuilder: android.app.TaskStackBuilder = android.app.TaskStackBuilder.create(applicationContext)
+        val taskStackBuilder: android.app.TaskStackBuilder =
+            android.app.TaskStackBuilder.create(applicationContext)
         taskStackBuilder.addParentStack(SettingsActivity::class.java)
         taskStackBuilder.addNextIntent(notifIntent)
 
         val pendingIntent: PendingIntent? = getPendingIntent(task)
-        val notifManagerCompat = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notifManagerCompat =
+            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val notifBuilder = NotificationCompat.Builder(applicationContext, NOTIFICATION_CHANNEL_ID)
             .setContentIntent(pendingIntent)
@@ -71,7 +76,8 @@ class NotificationWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, p
             val channel = NotificationChannel(
                 NOTIFICATION_CHANNEL_ID,
                 channelName,
-                NotificationManager.IMPORTANCE_DEFAULT)
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
             notifBuilder.setChannelId(NOTIFICATION_CHANNEL_ID)
             notifManagerCompat.createNotificationChannel(channel)
         }

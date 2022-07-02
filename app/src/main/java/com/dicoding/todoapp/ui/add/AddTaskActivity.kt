@@ -49,7 +49,8 @@ class AddTaskActivity : AppCompatActivity(), DatePickerFragment.DialogDateListen
                 //TODO 12 : Create AddTaskViewModel and insert new task to database
                 val addNew = Task(0, title, desc, dueDateMillis, false)
                 taskViewModel.insert(task = addNew)
-                Toast.makeText(applicationContext, "Task has been added!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Task has been added!", Toast.LENGTH_SHORT)
+                    .show()
                 finish()
                 true
             }

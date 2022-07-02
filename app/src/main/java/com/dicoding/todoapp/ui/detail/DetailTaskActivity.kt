@@ -19,7 +19,8 @@ class DetailTaskActivity : AppCompatActivity() {
 
         //TODO 11 : Show detail task and implement delete action
         val viewModel = ViewModelFactory.getInstance(this)
-        val detailViewModel: DetailTaskViewModel = ViewModelProvider(this, viewModel).get(DetailTaskViewModel::class.java)
+        val detailViewModel: DetailTaskViewModel =
+            ViewModelProvider(this, viewModel).get(DetailTaskViewModel::class.java)
 
         detailViewModel.setTaskId(intent.getIntExtra(TASK_ID, 0))
         detailViewModel.task.observe(this) {
@@ -36,7 +37,11 @@ class DetailTaskActivity : AppCompatActivity() {
                 val btnDeleteTask: Button = findViewById(R.id.btn_delete_task)
                 btnDeleteTask.setOnClickListener {
                     detailViewModel.deleteTask()
-                    Toast.makeText(applicationContext, "Your task has been deleted!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        applicationContext,
+                        "Your task has been deleted!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     finish()
                 }
             }

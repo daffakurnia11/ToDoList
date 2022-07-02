@@ -8,7 +8,7 @@ import com.dicoding.todoapp.ui.detail.DetailTaskViewModel
 import com.dicoding.todoapp.ui.list.TaskViewModel
 
 class ViewModelFactory private constructor(private val taskRepository: TaskRepository) :
-    ViewModelProvider.Factory{
+    ViewModelProvider.Factory {
 
     companion object {
         @Volatile
