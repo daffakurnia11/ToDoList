@@ -1,17 +1,17 @@
 package com.dicoding.todoapp.setting
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
 import com.dicoding.todoapp.R
 import com.dicoding.todoapp.notification.NotificationWorker
 import com.dicoding.todoapp.utils.NOTIFICATION_CHANNEL_ID
-import com.dicoding.todoapp.utils.NOTIFICATION_CONTENT_ID
+import java.util.concurrent.TimeUnit
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -33,20 +33,58 @@ class SettingsActivity : AppCompatActivity() {
 
             val prefNotification =
                 findPreference<SwitchPreference>(getString(R.string.pref_key_notify))
-            prefNotification?.setOnPreferenceChangeListener { _, newValue ->
+            prefNotification?.setOnPreferenceChangeListener { preferences, newValue ->
                 val channelName = getString(R.string.notify_channel_name)
                 //TODO 13 : Schedule and cancel daily reminder using WorkManager with data channelName
-                val workManager = WorkManager.getInstance(requireContext())
-                if (newValue as Boolean) {
-                    val data = Data.Builder()
-                        .putString(NOTIFICATION_CHANNEL_ID, "notification_id_reminder")
-                        .putString(NOTIFICATION_CONTENT_ID, getString(R.string.notify_content))
-                        .build()
-                    val request =
-                        OneTimeWorkRequestBuilder<NotificationWorker>().setInputData(data).addTag(
-                            NOTIFICATION_CHANNEL_ID
-                        ).build()
-                    workManager.enqueue(request)
+                val workManager: WorkManager = WorkManager.getInstance(requireContext())
+                lateinit var periodicWorkRequest: PeriodicWorkRequest
+
+                if (preferences.key == getString(R.string.pref_key_notify)) {
+                    if (newValue == true) {
+                        val data = Data.Builder()
+                            .putString(NOTIFICATION_CHANNEL_ID, channelName)
+                            .build()
+
+                        periodicWorkRequest = PeriodicWorkRequest.Builder(
+                            NotificationWorker::class.java,
+                            1, TimeUnit.DAYS
+                        ).setInputData(data).build()
+
+                        workManager.enqueue(periodicWorkRequest)
+                        workManager.getWorkInfoByIdLiveData(periodicWorkRequest.id)
+                            .observe(viewLifecycleOwner) { workInfo ->
+                                val status = workInfo.state.name
+                                Log.d("SettingsFragment", "WorkManager Status : $status")
+                                if (workInfo.state == WorkInfo.State.ENQUEUED) {
+                                    Log.d("SettingsFragment", "Reminder has been enqueued")
+                                }
+                            }
+                    } else {
+                        try {
+                            workManager.getWorkInfoByIdLiveData(periodicWorkRequest.id)
+                                .observe(viewLifecycleOwner) { workInfo ->
+                                    val status = workInfo.state.name
+                                    Log.d("SettingsFragment", "WorkManager Status : $status")
+                                    if (workInfo.state == WorkInfo.State.ENQUEUED) {
+                                        try {
+                                            workManager.cancelWorkById(periodicWorkRequest.id)
+                                        } catch (e: Exception) {
+                                            Log.e(
+                                                "SettingsFragment",
+                                                "Cancel Periodic Work Failed : ${e.message}"
+                                            )
+                                        }
+                                        Toast.makeText(
+                                            requireContext(),
+                                            "Task reminder has been cancelled",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                        } catch (e: Exception) {
+                            Log.e("SettingsFragment", "Cancelling Reminder Failed : ${e.message}")
+                        }
+                    }
                 }
                 true
             }
