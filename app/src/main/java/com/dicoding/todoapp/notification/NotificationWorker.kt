@@ -50,7 +50,7 @@ class NotificationWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, p
         //TODO 14 : If notification preference on, get nearest active task from repository and show notification with pending intent
         val task = TaskRepository.getInstance(applicationContext).getNearestActiveTask()
         val date = DateConverter.convertMillisToString(task.dueDateMillis)
-        val message = "$date -> ${task.description}"
+        val message = "Due in $date"
         val title = task.title
         val notifIntent = Intent(applicationContext, TaskActivity::class.java)
 
